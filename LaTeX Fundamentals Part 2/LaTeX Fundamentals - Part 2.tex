@@ -1,0 +1,493 @@
+\documentclass{article}
+%Remember that your first step in a LaTeX document is to define your document class and call all the packages you need. In the preamble, you can also set up your title or define any commands you want.
+
+\usepackage{soul} %highlighting
+\usepackage[toc,page]{appendix} %lets us make an appendix
+\usepackage{enumitem} %this package lets us customize list types
+\usepackage{amsmath} %this package will let us use the align environment, and generally make our equations prettier
+\usepackage{hyperref} %lets you embed hyperlinks into your document
+\usepackage{booktabs} %one of the best packages for table formatting
+\usepackage{array} %lets us create fixed width cells
+\usepackage{graphicx} %a great package for adding figueres 
+\usepackage{caption} %for making subcaptions in figures
+\usepackage{subcaption} %for making subcaptions in figures
+\usepackage{dcolumn} %required for stargazer
+\usepackage{natbib} %for making our citations nice
+
+%We can add our title info here:
+\title{\LaTeX\ Fundamentals: Part 2}
+\date{} % without this, LaTeX will call today's date into the title
+\author{Isabelle Cohen \\
+DLab, Fall 2018}
+
+\begin{document}
+
+%First, we call our title
+
+\maketitle
+\clearpage
+%Making a table of contents is super easy
+\tableofcontents
+\clearpage
+
+\section{Welcome to \LaTeX!}\label{welcome}
+
+\LaTeX\  is a document creation software which uses plain text with what are called ``mark-up tagging conventions.'' We are in Section \ref{welcome}.
+
+\LaTeX\  has all kinds of useful features:
+\begin{enumerate}
+	\item It right and left-justifies your text, in a way that looks much better than Microsoft Word
+	\item It's great for writing lengthy equations
+	\item It makes it easy to integrate your bibliography into your document, using what's called BibTex
+	\item It's easy to export statistical analysis from Stata or R directly into a convenient LaTeX format
+\end{enumerate}
+
+Overall, while \LaTeX\  might not be the easiest program to start using, it can help make your life easier, and your work look more professional.
+
+The basic way that \LaTeX\ works is that you write code and text together in a writing environment (like TexStudio, but it can also be simpler), then compile your code. The compiling reads the code into the text, and produces a formatted document, typically a .pdf (but we can also make a .ps or .dvi file). The text editor and the distribution (what does the compiling) are often bundled together, like in TexStudio.
+
+In this workshop, we look at how to make tables in \LaTeX, how to incorporate footnotes and references into your document, how to automate exporting from Stata or R to \LaTeX, and (in a separate document) how to use Stata to make presentations.
+
+%Let's jump right into tables
+
+\section{Tables}
+
+\LaTeX\ has great functionality for tables. The simplest environment for a table is called tabular. We can open it below, and build our table cell by cell:
+
+\begin{tabular}{ c c c }
+	\emph{cell1} & \textbf{cell2} & \textit{cell3} \\ 
+	\underline{cell4} & \textbf{\textit{cell5}} & cell6 \\  
+	cell7 & cell8 & cell9    
+\end{tabular}
+
+Tables use \& to differentiate between cells within a line, and $\backslash\backslash$ to differentiate between lines.
+
+Another useful environment is the center environment. We can embed a tabular environment within a center environment to create a centered table, like below. We'll also add some vertical and horizontal lines between our cells:
+
+\begin{center}
+	\begin{tabular}{|r|c|c|} 
+		\hline
+		cell1 with some extra text & cell2 & cell3 \\ 
+		cell4 & cell5 & cell6 \\ 
+		cell7 & cell8 & cell9 \\ 
+		\hline
+	\end{tabular}
+\end{center}
+
+Why are there three cs after we open the tabular command? This tells tabular that the table will have at most three cells per row, and that the text in these cells will be center-justified. If we replaced those cs with ls, we'd get left-justified text.
+
+Notice how the extra text in cell1 stretched out the row? That's the default in tabular, where the column is as wide as it needs to be to accommodate all the text. If we don't like that, we can instead create fixed-width cells. For this, we'll need the array package that we installed earlier.
+
+\begin{center}
+	\begin{tabular}{ | m{3cm} | m{1cm}| m{1cm} | } 
+		\hline
+		cell1 lots of text in this cell! & cell2 & cell3 \\ 
+		\hline
+		cell1 lots of text in this cell too & cell5 & cell6 \\ 
+		\hline
+		cell7 & cell8 & cell9 \\ 
+		\hline
+	\end{tabular}
+\end{center}
+
+Now, rather than extra text stretching out the cell, the cell is fixed width, and the text wraps to the next line. The m in the tabular environment above means the height is set to the middle of the cell; we could also use p, for top, or b, for bottom.
+
+Something we frequently want to do is combine cells in just one row - like to create a titles for some columns. This is easy to do with the multicolumn command.
+
+\begin{center}
+	\begin{tabular}{ | m{3cm} | m{1cm}| m{1cm} | } 
+		\hline
+		 & \multicolumn{2}{c}{Cell title} \\
+		\hline
+		cell1 lots of text in this cell! & cell2 & cell3 \\ 
+		\hline
+		cell4 & cell5 & cell6 \\ 
+		\hline
+	\end{tabular}
+\end{center}
+
+%For multicolumn, notice that we need to specify the numbers of columns included in the first set of brackets, and whether the cell should be left-centered, centered or right-centered in the second.
+
+Notice how our box broke on the right of our multicell? That's because we need to specify within the multicolumn command that there should be a line on the right, like below:
+
+\begin{center}
+	\begin{tabular}{ | m{3cm} | m{1cm}| m{1cm} | } 
+		\hline
+		& \multicolumn{2}{c|}{Cell title}  \\
+		\hline
+		cell1 lots of text in this cell! & cell2 & cell3 \\ 
+		\hline
+		cell4 & cell5 & cell6 \\ 
+		\hline
+	\end{tabular}
+\end{center}
+
+There are all kinds of other things we might want for our table, like positioning the table or adding a title. These are easier when we embed our tabular environment inside a table environment. Table and tabular have different functionalities; tabular is great for simple tables, but to add more complex features we often also need the table environment.
+
+Once we use table, we don't need the center environment anymore; instead, inside the table, we can use centering, which will center the table for us. For tables, we can also choose from h (here), t( (top), b (bottom) and P (for special page). If we want, we can also use a ! to strengthen the request, and encourage \LaTeX\ to override its default.
+
+Here's a table with the tabular environment embedded in the table environment. Now we can specify that the table's location with h!, and add a caption and label. The label isn't printed, but lets us refer to the table as Table \ref{table:1}.
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{||c c c c||} 
+		\hline
+		Col1 & Col2 & Col2 & Col3 \\ [0.5ex] 
+		\hline\hline
+		1 & 6 & 87837 & 787 \\ 
+		2 & 7 & 78 & 5415 \\
+		3 & 545 & 778 & 7507 \\
+		4 & 545 & 18744 & 7560 \\
+		5 & 88 & 788 & 6344 \\ [1ex] 
+		\hline
+	\end{tabular}
+	\caption{This table has a caption\label{table:1}}
+\end{table}
+
+%Notice that the caption is OUTSIDE of the tabular environment! 
+
+The booktabs package also opens up a world of professional looking customization for our tables. The author of booktabs recommends only using horizontal lines, never vertical ones; this is consistent with what you'll actually see in published tables.
+
+The following table is from the booktabs documentation, available \href{http://ftp.math.purdue.edu/mirrors/ctan.org/macros/latex/contrib/booktabs/booktabs.pdf}{here}.
+
+%The href command lets us embed links in our pdf. The first set of brackets contains the link; the second what will display on the pdf.
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{llr} \toprule
+		\multicolumn{2}{c}{Item} \\ \cmidrule(r){1-2} \cmidrule(l){3-3}
+		Animal & Description & Price (\$)\\ \midrule
+		Gnat & per gram & 13.65 \\
+		& each & 0.01 \\
+		Gnu & stuffed & 92.50 \\
+		Emu & stuffed & 33.33 \\ \addlinespace
+		Armadillo & frozen & 8.99 \\ \bottomrule
+	\end{tabular}
+\end{table}
+
+The new commands we used inside tabular are toprule (for the line at the top of the table), cmidrule (for the partial line under item), midrule (for the line until the column titles) and bottomrule (for the line at the bottom of the table). While not hugely different, these lines tend to look a little better than hline (what we used before). Booktabs also includes the command addlinespace, which is how we add a line of blank space within the table (as we do between Emu and Armadillo above).
+\clearpage
+%LaTeX wants the next text to show up on this page, with the two tables on top of one another in their own page. I force it to clear the page - creating an unsightly blank space at the bottom - so that I can have some text between the tables.
+
+We can also put captions at the top of table, as we do for Table \ref{tab:animal}, and add notes to the bottom of the table using multicolumn and footnotesize (one of the commands to control text size).
+
+\begin{table}[h!]
+	\centering
+	\caption{Animal Prices}\label{tab:animal}
+	\begin{tabular}{llr} \toprule
+		\multicolumn{2}{c}{Item} \\ \cmidrule(r){1-2}
+		Animal & Description & Price (\$)\\ \midrule
+		Gnat & per gram & 13.65 \\
+		& each & 0.01 \\
+		Gnu & stuffed & 92.50 \\
+		Emu & stuffed & 33.33 \\ \addlinespace
+		Armadillo & frozen & 8.99 \\ \midrule
+		\multicolumn{3}{l}{\footnotesize We can include helpful notes here.} \\
+		\bottomrule
+	\end{tabular}
+	\centering
+\end{table}
+
+You don't even need to copy and paste a table into \LaTeX. If you have a separate file - perhaps generated via Stata or R - you can just call it into your document with the input command, as below:
+
+\input{table.tex}
+
+%It's your turn to practice. Something has gone wrong with the table in LaTeX Exercise 4. See if you can fix it!
+\clearpage
+\section{Footnotes and references}
+
+Footnotes are easy to include and reference in \LaTeX.\footnote{See?\label{footnote}}. We can use the label we just defined to easily refer to footnote \ref{footnote}.
+
+References are a little more complicated, but the \LaTeX\ system works very, very well. With a little work, you can set up all the citations you need, and access them easily. Let's say you wanted to cite a journal article. Here's what the citation looks like typed out:
+
+Arrow, Kenneth J., Leonid Hurwicz, and Hirofumi Uzawa (1961), ``Constraint qualifications in maximization problems.'' \emph{Naval Research Logistics Quarterly}, 8, 175–191.
+
+We could handle all our citations manually - but we can use Bibtex to do better. Bibtex is actually its own software, but generally used with \LaTeX\ to make your life easier. There are a few things you need to do to use Bibtex:
+\begin{itemize}
+	\item Set up a bibtex file where all your citation info is stored
+	\item References to any citations where necessary/appropriate
+	\item Pick a bibliography style and call it in your \LaTeX\ file
+	\item Generate your bibliography
+\end{itemize}
+
+Here's what the entry would look like in the .bib file:
+\begin{verbatim}
+@article{arrow1961,
+Author= {Kenneth J Arrow and Leonid Hurwicz and Hirofumi Uzawa},
+Journal = {Naval Research Logistics Quarterly},
+Pages = {175-191},
+Title = {Constraint qualifications in maximization problems},
+Volume = {8},
+Year = {1961}}
+\end{verbatim}
+
+File types include book, article, report, conference proceedings (inproceedings), and even a generic misc format. Each object in the citation - Author, Journal, Pages, Title, Volume and Year in this case - is formatted the same way. The \{ \} before and after define the words, with a comma to separate lines. When we reference the citation inside the document, we'd get \citep{arrow1961}. 
+
+%We can also use citet to cite in text or citep to cite in a paragraph, both from natbib
+
+Notice that using this requires a few other things as well, as below. We're using the simple plainnat style from the natbib package.\footnote{For more on natbib, see \href{https://www.sharelatex.com/learn/Natbib_bibliography_styles}{here}.} 
+
+To use the bibliography, we'll need to:
+\begin{enumerate} 
+	\item Specify a bibliography style and references list
+	\item Run the \LaTeX\ code (it will have errors - don't worry about them)
+	\item Run the bibliography from the tex document
+	\item Run the code again, twice; this integrates our references. 
+\end{enumerate}	
+	
+Our reference list will show up where we call the bibliography.
+
+%We need to specify a bibliography style
+\bibliographystyle{abbrvnat}
+%We can then call the bibliography using the name of our .bib file
+\bibliography{MyBibliographyissogreat}
+
+\section{Stata/R to \LaTeX}
+
+It's very easy to export high-quality tables from Stata or R to \LaTeX. We'll discuss figures in both softwares, then how to export summary statistics and regression results from either.
+
+\subsection{Figures}
+
+In either software, once you export a figure into a non-native format (such as a .jpg or .png), you can use the includegraphics command to add it to your tex document. If you want, Stata also has the user-written graph2tex command, which converts the most recently produced figure into an .eps file - which works well in Stata - and displays sample code for incorporating it in your Review window. 
+
+\subsection{Summary statistics: Stata}
+
+For Stata, the user-written command sutex produces excellent summary statistics tables. To install, just type
+\begin{verbatim}
+ssc install sutex
+\end{verbatim}
+
+Once installed, you can type -- sutex [varlist] -- where varlist is a list of all the variables you want. If you leave it blank, the command will include every variable in the dataset. You can specify options like label (to include variable labels instead of names), minmax to include minimums and maximums, and a title. You can copy and paste the results from the Review window into \LaTeX or save them using the file(filename) option.
+
+\input{test.tex}
+
+\begin{table}[htbp]\centering \caption{Summary Statistics \label{sumstat}}
+	\begin{tabular}{l c c c c c}\hline\hline
+		\multicolumn{1}{c}{\textbf{Variable}} & \textbf{Mean}
+		& \textbf{Std. Dev.}& \textbf{Min.} &  \textbf{Max.} & \textbf{N}\\ \hline
+		age in current year & 39.153 & 3.06 & 34 & 46 & 2246\\
+		married & 0.642 & 0.48 & 0 & 1 & 2246\\
+		current grade completed & 13.099 & 2.521 & 0 & 18 & 2244\\
+		union worker & 0.245 & 0.43 & 0 & 1 & 1878\\
+		hourly wage & 7.767 & 5.756 & 1.005 & 40.747 & 2246\\
+		usual hours worked & 37.218 & 10.509 & 1 & 80 & 2242\\
+		\hline
+	\end{tabular}
+\end{table}
+\clearpage
+\subsection{Tables: Stata}
+
+The two main commands in Stata to produce publication-quality tables in \LaTeX\ are outreg2 and estout. To install estout, just type
+\begin{verbatim}
+ssc install estout
+\end{verbatim}
+
+When you run regressions, you can store the results using the estimates store (or eststo) command, as a prefix or after the regression is run. Once you've run all the regressions you want, you can export them into a \LaTeX\ table. 
+
+\begin{table}[htbp]\centering
+	\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+	\caption{Wage Correlates}
+	\begin{tabular*}{1.0\hsize}{@{\hskip\tabcolsep\extracolsep\fill}l*{3}{c}}
+		\toprule
+		&\multicolumn{1}{c}{(1)}         &\multicolumn{1}{c}{(2)}         &\multicolumn{1}{c}{(3)}         \\
+		\midrule
+		current grade completed         &    0.743\sym{***}&    0.694\sym{***}&    0.744\sym{***}\\
+		&  (0.046)         &  (0.034)         &  (0.046)         \\
+		\addlinespace
+		union worker                    &                  &    1.093\sym{***}&                  \\
+		&                  &  (0.201)         &                  \\
+		\addlinespace
+		married                         &                  &                  &   -0.540\sym{**} \\
+		&                  &                  &  (0.240)         \\
+		\midrule
+		N. of obs.                      &     2244         &     1876         &     2244         \\
+		Control Mean                    &    7.767         &    7.767         &    7.767         \\
+		\bottomrule
+		\multicolumn{4}{l}{\footnotesize Standard errors in parentheses}\\
+		\multicolumn{4}{l}{\footnotesize \sym{*} \(p<0.10\), \sym{**} \(p<0.05\), \sym{***} \(p<0.01\)}\\
+	\end{tabular*}
+\end{table}
+
+The Stata code that generated it:
+\begin{verbatim}
+reg wage grade
+	eststo, title(Reg1)
+	summarize wage
+	estadd scalar ymean = r(mean)
+reg wage grade union
+	eststo, title(Reg2)
+	summarize wage
+	estadd scalar ymean = r(mean)
+reg wage grade married
+	eststo, title(Reg3)
+	summarize wage
+	estadd scalar ymean = r(mean)
+	
+esttab using "sample_table1.tex", title("Wage Correlates") ///
+	varwidth(32) b(%6.3f) label se nomtitles replace booktabs ///
+	drop(_cons) ///
+	stats(N ymean, fmt(0 3) labels ("N. of obs." "Control Mean")) ///
+	star (* 0.10 ** 0.05 *** 0.01) width(1.0\hsize) compress
+eststo clear
+\end{verbatim}
+
+Let's walk through this line by line. We run a regression, then we use the eststo command to store the results. On the next line, we run a summary stats command, and store the output in the scalar ymean, using the estadd command. That combination is repeated three times, and takes up the first twelve lines.
+
+Once we have the regression we want, we use the esttab command.
+\begin{itemize}
+	\item We need to name the file we want to save (after using)
+	\item we title the table
+	\item We specify that no line is wider than 32 characters
+	\item We set the coefficient formatting (no more than three decimals)
+	\item We tell Stata to use variable labels, standard errors (rather than t-stats), no model titles
+	\item We tell Stata to overwrite any existing files with the same name
+	\item We use the booktabs package to get top and bottom rule lines
+	\item We drop the constant; include the sample size with no decimal places, the mean with three, and label them; and specify significance thresholds
+	\item Finally, we set the width of the entire table and reduce the amount of horizontal space with compress
+\end{itemize}
+
+There are many, many more ways to customize your tables. For more, type the following into Stata after esttab is installed:
+\begin{verbatim}
+help esttab
+\end{verbatim}
+
+
+
+\subsection{Summary statistics and tables: R}
+
+In R, the \emph{stargazer} package will be your best friend for producing high-quality tables.
+
+To use stargazer, we would first make sure we have it installed on our computer, then add it to our library:
+\begin{verbatim}
+install.packages("stargazer")
+library(stargazer)
+\end{verbatim}
+
+For a simple table of summary statistics, we just type stargazer() and the name of our dataframe.
+
+\begin{verbatim}
+stargazer(birthwt)
+\end{verbatim}
+which produces:
+\begin{table}[!htbp] \centering 
+	\caption{} 
+	\label{} 
+	\begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+		\\[-1.8ex]\hline 
+		\hline \\[-1.8ex] 
+		Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Max} \\ 
+		\hline \\[-1.8ex] 
+		low & 189 & 0.312 & 0.465 & 0 & 1 \\ 
+		age & 189 & 23.238 & 5.299 & 14 & 45 \\ 
+		lwt & 189 & 129.815 & 30.579 & 80 & 250 \\ 
+		race & 189 & 1.847 & 0.918 & 1 & 3 \\ 
+		smoke & 189 & 0.392 & 0.489 & 0 & 1 \\ 
+		ptl & 189 & 0.196 & 0.493 & 0 & 3 \\ 
+		ht & 189 & 0.063 & 0.244 & 0 & 1 \\ 
+		ui & 189 & 0.148 & 0.356 & 0 & 1 \\ 
+		ftv & 189 & 0.794 & 1.059 & 0 & 6 \\ 
+		bwt & 189 & 2,944.587 & 729.214 & 709 & 4,990 \\ 
+		\hline \\[-1.8ex] 
+	\end{tabular} 
+\end{table} 
+
+%The @ command in the setup for tabular automatically adds the text inside its argument into the relevant column; in this case it adds a little extra space at the beginning of a particular column as a default
+
+For regression analysis, we run the regression and store the results, then use stargazer to export them:
+\begin{verbatim}
+reg1 <- lm(bwt ~ age + smoke, data=birthwt)
+
+#Stargazer table, for LaTeX
+stargazer(reg1,out="sample_table2.tex",
+title="Birthweight on Mother's Age and Smoking Habits",align=TRUE,
+omit.stat=c("LL","ser","f","adj.rsq"),no.space=TRUE)
+\end{verbatim}
+
+This generates the following table, which prints in our display and is saved as a file:
+
+\begin{table}[!htbp] \centering 
+	\caption{Birthweight on Mother's Age and Smoking Habits} 
+	\label{} 
+	\begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-3} } 
+		\\[-1.8ex]\hline 
+		\hline \\[-1.8ex] 
+		& \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+		\cline{2-2} 
+		\\[-1.8ex] & \multicolumn{1}{c}{bwt} \\ 
+		\hline \\[-1.8ex] 
+		age & 11.290 \\ 
+		& (9.881) \\ 
+		smoke & -278.356^{**} \\ 
+		& (106.987) \\ 
+		Constant & 2,791.224^{***} \\ 
+		& (240.950) \\ 
+		\hline \\[-1.8ex] 
+		Observations & \multicolumn{1}{c}{189} \\ 
+		R$^{2}$ & \multicolumn{1}{c}{0.043} \\ 
+		\hline 
+		\hline \\[-1.8ex] 
+		\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+	\end{tabular} 
+\end{table} 
+
+As before, there are many, many more options. We've used just a few:
+\begin{itemize}
+	\item out, to name where we'll put the file
+	\item title, to specify our title
+	\item align=TRUE to align columns along decimals
+	\item omit.stat to drop some possible regression summary statistics
+	\item no.space=TRUE to remove all empty lines
+\end{itemize}
+
+This simple tables take just minutes to create, but look great! Once you find formatting options that you like, you can just copy and paste them between different sets of analysis to make the tables even faster, with barely seconds longer than it takes to run your regressions.
+
+\section{Resources for further study}
+
+There are a ton of ``getting started in \LaTeX'' resources:
+\begin{itemize}
+	\item \href{http://www.andy-roberts.net/writing/latex}{Getting to Grips with LaTeX}
+	\item \href{ftp://ctan.tug.org/tex-archive/info/lshort/english/lshort.pdf}{The Not So Short Introduction to LaTeX 2$\epsilon$}
+	\item \href{https://www.ctan.org/starter}{CTAN's Starting Out in LaTeX Guide}
+\end{itemize}
+
+% To practice everything we've done today and in the first workshop, let's turn to LaTeX Exercise 5.
+
+\clearpage
+\appendix
+\section{Useful packages}
+
+There are a number of useful packages in \LaTeX. Here are the packages we use in the Fundamentals series:
+\begin{itemize}
+	\item soul: \hl{highlighting}
+	\item appendix with \[toc, page\]: lets us make an appendix
+	\item enumitem: this package lets us customize list types
+	\item amsmath: this package will let us use the align environment, and generally make our equations prettier
+	\item hyperref: lets you embed hyperlinks into your document
+	\item booktabs: one of the best packages for table formatting
+	\item array: lets us create fixed width cells
+	\item graphicx: a great package for adding figueres 
+	\item caption: for making subcaptions in figures
+	\item subcaption: for making subcaptions in figures
+	\item dcolumn: required for stargazer
+	\item natbib: for making our citations nice
+\end{itemize}
+We can't cover all of them today, so here are a few others that you might be interested in:
+\begin{itemize}
+	\item tikzpicture: lets you draw lines and geometric shapes within a TeX document. See \href{http://cremeronline.com/LaTeX/minimaltikz.pdf}{this link}
+	\item fancyhdr: lets you add custom headers and footers into your LaTeX document. See \href{https://www.ctan.org/pkg/fancyhdr}{this link}
+	\item pdfpages: lets you include pdfs into your TeX document. See \href{https://www.ctan.org/pkg/pdfpages}{this link}
+	\item tabularx: lets you create tables that are the same width as the text. There are subtle differences between how tabular, tabular*, and tabularx handle spacing within tables; \href{https://tex.stackexchange.com/questions/341205/what-is-the-difference-between-tabular-tabular-and-tabularx-environments/341212}{this stackexchange} has some helpful examples.
+	\item xspace: creates spaces after commands (like \LaTeX); you can use xspace in creating commands to insert that extra space
+	\item bibtex and biblatex: both are alternatives to natbib which contain other options for formatting. \href{https://www.sharelatex.com/learn/Bibliography_management_in_LaTeX}{This page} on bibliography management in \LaTeX\ is a great resource.
+	\item geometry: lets you customize header, footer and margin width in your document. See \href{https://www.ctan.org/pkg/geometry}{this link}
+\end{itemize}
+
+\section{Useful symbols}
+
+All predefined mathematical symbols in \LaTeX\ are available \href{https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols}{here}. An incredibly comprehensive list of 2,590 symbols with the necessary packages and commands is available \href{https://math.uoregon.edu/wp-content/uploads/2014/12/compsymb-1qyb3zd.pdf}{here}. The second link also discuss amsmath extensively.
+
+\section{Templates}
+
+\href{https://www.overleaf.com/latex/templates/}{Overleaf} has a great database of \LaTeX\ templates.
+
+\end{document}
